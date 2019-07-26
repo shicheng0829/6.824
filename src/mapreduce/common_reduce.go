@@ -44,4 +44,5 @@ func doReduce(
 	//
 	// Your code here (Part I).
 	//
+	reduceFile := reduceName(jobName, reduceTask, i)
 }
