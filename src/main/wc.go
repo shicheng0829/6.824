@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"mapreduce"
 	"os"
+	"strconv"
+	"strings"
 )
 
 //
@@ -15,6 +17,12 @@ import (
 //
 func mapF(filename string, contents string) []mapreduce.KeyValue {
 	// Your code here (Part II).
+	words := strings.Fields(contents)
+	res := make([]mapreduce.KeyValue, len(words))
+	for i, _ := range res{
+		res[i] = mapreduce.KeyValue{words[i], string(1)}
+	}
+	return res
 }
 
 //
@@ -24,6 +32,12 @@ func mapF(filename string, contents string) []mapreduce.KeyValue {
 //
 func reduceF(key string, values []string) string {
 	// Your code here (Part II).
+	sum := 0
+	for _, v := range values{
+		cur, _ := strconv.Atoi(v)
+		sum += cur
+	}
+	return string(sum)
 }
 
 // Can be run in 3 ways:

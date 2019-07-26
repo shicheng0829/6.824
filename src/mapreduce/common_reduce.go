@@ -1,5 +1,12 @@
 package mapreduce
 
+import (
+	"encoding/json"
+	"log"
+	"os"
+	"sort"
+)
+
 func doReduce(
 	jobName string, // the name of the whole MapReduce job
 	reduceTask int, // which reduce task this is
@@ -44,5 +51,42 @@ func doReduce(
 	//
 	// Your code here (Part I).
 	//
-	reduceFile := reduceName(jobName, reduceTask, i)
+	keys:= make([]string, 0)
+	kvs := make(map[string][]string)
+	for m := 0; m < nMap; m++{
+		reduceFile := reduceName(jobName, m, reduceTask)
+		fd, err := os.Open(reduceFile)
+		if err != nil{
+			log.Fatalf("%s file can't open: %s", reduceFile, err)
+		}
+		dec := json.NewDecoder(fd)
+		var kv KeyValue
+		for err := dec.Decode(&kv); err == nil; {
+			if _ , ok :=kvs[kv.Key]; !ok{
+				keys = append(keys, kv.Key)
+			}
+			kvs[kv.Key] = append(kvs[kv.Key], kv.Value)
+		}
+		err = fd.Close()
+		if err != nil{
+			log.Fatalf("%s file can't close: %s", reduceFile, err)
+		}
+	}
+	sort.Strings(keys)
+	output, err := os.Create(outFile)
+	if err != nil{
+		log.Fatalf("output file can't create: %s", err)
+	}
+	enc := json.NewEncoder(output)
+	for _, key := range keys{
+		err = enc.Encode(KeyValue{key, reduceF(key, kvs[key])})
+		if err != nil{
+			log.Fatalf("file can't encode: %s", err)
+		}
+	}
+	err = output.Close()
+	if err != nil{
+		log.Fatalf("output file can't close: %s", err)
+	}
+
 }
