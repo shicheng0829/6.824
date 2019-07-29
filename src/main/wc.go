@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 //
@@ -17,10 +18,13 @@ import (
 //
 func mapF(filename string, contents string) []mapreduce.KeyValue {
 	// Your code here (Part II).
-	words := strings.Fields(contents)
+	f := func(c rune) bool {
+		return !unicode.IsLetter(c) && !unicode.IsNumber(c)
+	}
+	words := strings.FieldsFunc(contents, f)
 	res := make([]mapreduce.KeyValue, len(words))
 	for i, _ := range res{
-		res[i] = mapreduce.KeyValue{words[i], string(1)}
+		res[i] = mapreduce.KeyValue{words[i], "1"}
 	}
 	return res
 }
@@ -37,7 +41,7 @@ func reduceF(key string, values []string) string {
 		cur, _ := strconv.Atoi(v)
 		sum += cur
 	}
-	return string(sum)
+	return strconv.Itoa(sum)
 }
 
 // Can be run in 3 ways:
