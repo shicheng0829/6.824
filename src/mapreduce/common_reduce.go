@@ -61,7 +61,7 @@ func doReduce(
 		}
 		dec := json.NewDecoder(fd)
 		var kv KeyValue
-		for err := dec.Decode(&kv); err == nil; {
+		for err := dec.Decode(&kv); err == nil; err = dec.Decode(&kv){
 			if _ , ok :=kvs[kv.Key]; !ok{
 				keys = append(keys, kv.Key)
 			}
